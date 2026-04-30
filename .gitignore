@@ -1,0 +1,55 @@
+# Environment
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+*.egg
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Data (large files — not committed)
+data/raw/
+data/processed/
+data/embeddings/
+
+# Docker volumes
+postgres_data/
+chromadb_data/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Test artifacts
+.pytest_cache/
+.hypothesis/
+htmlcov/
+.coverage
+coverage.xml
+
+# Kiro spec files (internal)
+.kiro/

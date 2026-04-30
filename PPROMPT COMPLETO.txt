@@ -1,0 +1,579 @@
+═══════════════════════════════════════════════════════════════════════════════
+PROMPT COMPLETO: POKÉDEX ARCANA — SISTEMA MULTIAGENTE DE IA PARA CONSULTAS POKÉMON
+═══════════════════════════════════════════════════════════════════════════════
+
+CONTEXTO GENERAL
+─────────────────────────────────────────────────────────────────────────────
+Eres un experto en sistemas multiagente, arquitecturas RAG, NLP y desarrollo
+de aplicaciones de IA conversacional. Tu tarea es diseñar y construir
+"POKÉDEX ARCANA", un sistema inteligente multiagente que funciona como una
+Pokédex potenciada con IA, capaz de responder consultas complejas en lenguaje
+natural sobre el universo Pokémon.
+
+El sistema debe cubrir desde datos estadísticos básicos hasta análisis
+estratégicos de composición de equipos, cálculos de daño con fórmulas reales,
+lore del anime/manga y razonamiento cruzado entre múltiples fuentes de datos,
+todo respaldado por el corpus real de conocimiento Pokémon.
+
+El resultado debe ser un sistema production-ready, observable, evaluable con
+métricas RAG, con arquitectura de agentes claramente diferenciada y una
+interfaz de usuario que refleje la estética visual de la Pokédex.
+
+═══════════════════════════════════════════════════════════════════════════════
+STACK TÉCNICO
+═══════════════════════════════════════════════════════════════════════════════
+
+Orquestación de Agentes:
+  - Framework principal: LangGraph (recomendado) o CrewAI / AutoGen
+  - Modelo base: Claude 3.5 Sonnet / GPT-4o / Gemini 1.5 Pro (configurable)
+  - Embeddings: text-embedding-3-small (OpenAI) o sentence-transformers
+  - Vector Store: ChromaDB (local) o Pinecone / Qdrant (cloud)
+  - RAG Framework: LlamaIndex o LangChain
+
+Backend:
+  - Runtime: Python 3.11+
+  - API Server: FastAPI + WebSockets (streaming de respuestas)
+  - Task Queue: Celery + Redis (para tareas asíncronas pesadas)
+  - Cache: Redis (respuestas frecuentes, sesiones)
+  - ORM: SQLAlchemy + PostgreSQL (historial conversacional)
+
+Frontend:
+  - Framework: React 18 + Vite
+  - Estilos: Tailwind CSS 3.4
+  - Animaciones: Framer Motion
+  - Gráficos: Recharts / Chart.js (visualizaciones de stats)
+  - WebSocket client: socket.io-client (streaming)
+  - Iconos: Lucide React
+
+Observabilidad:
+  - Tracing: LangSmith o Arize Phoenix
+  - Métricas RAG: RAGAS (faithfulness, answer_relevancy, context_precision)
+  - Logging: structlog + OpenTelemetry
+  - Dashboard: Grafana o panel custom React
+
+Datos y Fuentes:
+  - PokéAPI (REST): estadísticas, tipos, habilidades, movimientos, evoluciones
+  - Bulbapedia (scraped/exportado): lore, anime, manga, descripciones Pokédex
+  - Kaggle Datasets (CSV): stats compiladas, tipos, generaciones
+  - PDFs oficiales: guías de estrategia, trasfondo extendido
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 1: ARQUITECTURA MULTIAGENTE
+═══════════════════════════════════════════════════════════════════════════════
+
+1.1 AGENTE COORDINADOR (Orchestrator Agent)
+   ─ Responsabilidad: Punto de entrada de toda consulta del usuario
+   ─ Funciones:
+     • Analiza y clasifica la intención de la query (stats / daño / lore /
+       equipo / comparación / reporte)
+     • Descompone consultas complejas en subtareas atómicas
+     • Delega dinámicamente a los agentes especializados correspondientes
+     • Agrega y sintetiza las respuestas parciales en una respuesta final
+     • Gestiona el flujo conversacional y el estado de sesión
+   ─ Input: Mensaje del usuario + contexto conversacional
+   ─ Output: Respuesta sintetizada + metadata de agentes involucrados
+   ─ Modelo: LLM de alta capacidad (Claude Sonnet / GPT-4o)
+
+1.2 AGENTE DE ESTADÍSTICAS (Stats Agent)
+   ─ Responsabilidad: Consultas sobre datos estructurados de Pokémon
+   ─ Fuentes: PokéAPI + Kaggle CSV
+   ─ Capacidades:
+     • Recuperar stats base, tipos, habilidades, moveset por versión
+     • Comparar stats entre múltiples Pokémon
+     • Filtrar por generación, tipo, tier competitivo
+     • Calcular totales BST (Base Stat Total) y rankings
+     • Operaciones sobre datos tabulares: filtrar, ordenar, agregar
+   ─ Tools disponibles:
+     • get_pokemon_stats(name/id)
+     • compare_pokemon(list[str])
+     • filter_by_type(type1, type2)
+     • get_moveset(name, game_version)
+     • get_evolution_chain(name)
+
+1.3 AGENTE DE CÁLCULO DE DAÑO (Damage Calc Agent)
+   ─ Responsabilidad: Simulaciones de combate y cálculos numéricos precisos
+   ─ Fórmula base: Generación IX damage formula
+     Daño = ((((2×Nivel/5)+2) × BasePoder × Atk/Def) / 50 + 2)
+             × Modificadores
+   ─ Modificadores contemplados:
+     • STAB (×1.5), efectividad de tipo (0.25x / 0.5x / 1x / 2x / 4x)
+     • Naturaleza (×1.1 / ×0.9 en stat relevante)
+     • EVs/IVs del atacante y defensor
+     • Clima (sun/rain/sand/snow) y terrenos
+     • Items (Choice Band, Life Orb, etc.)
+     • Habilidades que afectan el daño
+     • Rango de daño mínimo-máximo (15 rolls)
+   ─ Output: Rango de daño (min-max PS), porcentaje de KO en 1, 2 hits
+   ─ Referencia de fuente: Citar fórmula Gen IX + stats de Bulbapedia
+
+1.4 AGENTE DE LORE Y NARRATIVA (Lore Agent)
+   ─ Responsabilidad: Información narrativa, anime, manga y Pokédex
+   ─ Fuentes: Bulbapedia (RAG), PDFs oficiales (RAG), descripciones Pokédex
+   ─ Capacidades:
+     • Descripciones de Pokédex por generación y juego
+     • Apariciones en el anime (temporada, episodio, arco)
+     • Relaciones entre Pokémon (rivales, amigos, familia evolutiva)
+     • Localizaciones canónicas (dónde se encuentran en cada juego)
+     • Trasfondo mitológico (Pokémon legendarios, creación del mundo)
+     • Información de entrenadores icónicos
+   ─ Chunking strategy: 512 tokens con 64 overlap, metadata por fuente
+
+1.5 AGENTE DE EQUIPO COMPETITIVO (Team Builder Agent)
+   ─ Responsabilidad: Análisis y recomendación de equipos competitivos
+   ─ Fuentes: Datos de Smogon (tiers, viabilidad), PokéAPI, corpus RAG
+   ─ Capacidades:
+     • Análisis de cobertura de tipos para un Pokémon ancla
+     • Identificación de debilidades y amenazas de un equipo parcial
+     • Recomendación de 1-5 compañeros con justificación estratégica
+     • Referencia a tier (OU/UU/RU/NU), sets de Smogon, roles (hazard setter,
+       wallbreaker, speed control, etc.)
+     • Sugerencia de naturaleza, EVs, item y moveset para cada miembro
+   ─ Output estructurado: Lista rankeada con nombre, rol, justificación, set
+
+1.6 AGENTE DE VERIFICACIÓN (Fact-Check Agent)
+   ─ Responsabilidad: Control de calidad de respuestas antes de emitirlas
+   ─ Funciones:
+     • Contrasta datos numéricos contra PokéAPI (source of truth)
+     • Detecta contradicciones entre fuentes (Bulbapedia vs API vs CSV)
+     • Señala información desactualizada (cambios entre generaciones)
+     • Valida que las citas de fuentes sean correctas y verificables
+     • Para cálculos: re-ejecuta la fórmula de forma independiente
+   ─ Output: Respuesta validada + score de confianza + fuentes confirmadas
+   ─ Trigger: Siempre activo en consultas con datos numéricos; opcional en lore
+
+1.7 AGENTE DE REPORTE (Report Generation Agent) [Factor Sorpresa]
+   ─ Responsabilidad: Generar reportes estructurados multi-paso
+   ─ Formatos: Markdown (.md) y PDF (via WeasyPrint o ReportLab)
+   ─ Tipos de reporte:
+     • "Análisis completo de [Pokémon]": stats + lore + uso competitivo
+     • "Comparativa de equipo": cobertura, debilidades, sinergia
+     • "Reporte de simulación de batalla": resultado de múltiples matchups
+   ─ Template: Header con nombre/imagen, secciones estructuradas, footer con
+     fuentes y fecha de generación
+   ─ Trigger: Usuario pide explícitamente "genera un reporte" o "dame un PDF"
+
+1.8 AGENTE DE VISUALIZACIÓN (DataViz Agent) [Factor Sorpresa]
+   ─ Responsabilidad: Generar gráficos y diagramas a partir de datos tabulares
+   ─ Tipos de visualización:
+     • Radar chart de stats base (hexágono estilo in-game)
+     • Barras comparativas entre Pokémon
+     • Tabla de efectividades de tipos (grid coloreado)
+     • Gráfico de línea: evolución de stats a través de generaciones
+     • Diagrama de cadena evolutiva
+   ─ Output: Componente React renderizable o imagen SVG/PNG base64
+   ─ Trigger: Detectado automáticamente por el Coordinador en consultas de
+     comparación; disponible explícitamente vía comando
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 2: SISTEMA RAG Y GESTIÓN DEL CONOCIMIENTO
+═══════════════════════════════════════════════════════════════════════════════
+
+2.1 PIPELINE DE INGESTA DE DATOS
+   ─ Fuente 1 — PokéAPI (structured):
+     • Fetch automático de los 1025 Pokémon (Gen I–IX)
+     • Parseo a schema normalizado (ver 2.3)
+     • Almacenamiento en PostgreSQL (datos estructurados)
+     • No requiere embedding — consulta directa vía SQL/herramienta
+
+   ─ Fuente 2 — Bulbapedia (unstructured RAG):
+     • Loader: BeautifulSoup scraper o dump HTML exportado
+     • Limpieza: remoción de boilerplate, wikitags, referencias circulares
+     • Chunking: RecursiveCharacterTextSplitter(size=512, overlap=64)
+     • Metadata por chunk: {source: "bulbapedia", pokemon_name, category,
+       generation, url}
+     • Embedding: text-embedding-3-small → ChromaDB collection: "bulbapedia"
+
+   ─ Fuente 3 — Kaggle CSVs:
+     • Carga con pandas
+     • Normalización de columnas (snake_case, tipos correctos)
+     • Indexado en PostgreSQL para queries SQL directas
+     • Embedding de descripciones textuales → ChromaDB: "kaggle_descriptions"
+
+   ─ Fuente 4 — PDFs oficiales:
+     • Extracción: PyMuPDF (fitz)
+     • Chunking semántico por sección/capítulo
+     • Embedding → ChromaDB collection: "official_guides"
+
+2.2 ESTRATEGIA DE RETRIEVAL
+   ─ Hybrid Search: BM25 (keyword) + dense retrieval (semantic) → reranking
+   ─ Reranker: cross-encoder/ms-marco-MiniLM (local) o Cohere Rerank
+   ─ Top-K: 5 chunks por query, con score mínimo 0.72
+   ─ Filtrado por metadata: generation, pokemon_name, category
+   ─ Query expansion: el LLM genera 2 queries alternativas automáticamente
+   ─ Fallback: si RAG score < umbral → consulta directa a PokéAPI
+
+2.3 SCHEMA DE DATOS NORMALIZADO
+   ─ Entidad Pokémon:
+     {
+       id: int,
+       name_es: str,
+       name_en: str,
+       national_dex: int,
+       generation: int,
+       types: list[str],           // ["Normal", "Fairy"]
+       base_stats: {
+         hp: int, attack: int, defense: int,
+         sp_attack: int, sp_defense: int, speed: int,
+         total: int
+       },
+       abilities: list[str],
+       hidden_ability: str | null,
+       evolution_chain: list[dict],
+       egg_groups: list[str],
+       tier: str | null,           // "OU", "UU", etc.
+       pokedex_entries: list[{game: str, text: str}]
+     }
+
+2.4 MÉTRICAS DE EVALUACIÓN RAG
+   ─ Framework: RAGAS
+   ─ Métricas activas:
+     • faithfulness: ¿La respuesta está sustentada en el contexto recuperado?
+     • answer_relevancy: ¿La respuesta responde la pregunta real?
+     • context_precision: ¿Los chunks recuperados son relevantes?
+     • context_recall: ¿Se recuperó suficiente contexto?
+   ─ Métricas adicionales (datos numéricos):
+     • numerical_accuracy: diferencia absoluta entre valor calculado y PokéAPI
+     • source_citation_rate: % de respuestas con fuente citada
+   ─ Evaluación periódica: benchmark set de 50 queries anotadas manualmente
+   ─ Output: Reporte RAGAS en JSON + dashboard visual
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 3: MEMORIA CONVERSACIONAL
+═══════════════════════════════════════════════════════════════════════════════
+
+3.1 TIPOS DE MEMORIA
+   ─ Buffer Memory (short-term):
+     • Ventana de 10 turnos en contexto activo
+     • Resumen automático al superar 10 turnos (ConversationSummaryMemory)
+     • Almacenamiento: Redis (TTL 2 horas por sesión)
+
+   ─ Episodic Memory (long-term):
+     • Persiste sesiones completas en PostgreSQL
+     • Schema: {session_id, user_id, timestamp, turns[], summary}
+     • Recuperación: últimas 3 sesiones del usuario como contexto adicional
+
+   ─ Entity Memory:
+     • Extrae y recuerda entidades mencionadas: Pokémon, items, estrategias
+     • Permite follow-up sin repetir contexto:
+       Usuario: "¿Y cuánto daño haría ese mismo movimiento contra Gengar?"
+       Sistema: Recuerda que "ese mismo movimiento" = Ventisca de Abomasnow
+
+3.2 GESTIÓN DE SESIONES
+   ─ Session ID: UUID v4 generado al inicio de conversación
+   ─ Estado de sesión incluye:
+     • Pokémon mencionados en la sesión
+     • Equipo en construcción (si aplica)
+     • Preferencias del usuario (generación favorita, formato competitivo)
+   ─ Comando de reset: "nueva sesión" o botón en la UI
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 4: INTERFAZ DE USUARIO (POKÉDEX UI)
+═══════════════════════════════════════════════════════════════════════════════
+
+4.1 DISEÑO VISUAL — ESTÉTICA POKÉDEX
+   ─ Paleta:
+     • Rojo Pokédex:     #CC0000
+     • Rojo oscuro:      #990000
+     • Negro profundo:   #1A1A1A
+     • Gris oscuro:      #2D2D2D
+     • Amarillo Pikachu: #FFCB05
+     • Azul pantalla:    #1E3A5F
+     • Verde tipo Grass: #78C850
+     • Cyan tipo Water:  #6890F0
+   ─ Fuentes:
+     • Títulos: 'Press Start 2P' (pixel font, Google Fonts) — 8-bit aesthetic
+     • Body: 'Inter' o 'Nunito' — legible, moderno
+   ─ Layout: Split-screen. Izquierda: panel Pokédex (listado/búsqueda).
+     Derecha: pantalla de detalle (stats, imagen, respuesta del sistema).
+
+4.2 COMPONENTES PRINCIPALES
+
+   CHAT INTERFACE (pantalla central):
+   ─ Input de texto en la parte inferior (estilo terminal/chat)
+   ─ Mensajes del usuario: bubble derecha, fondo #FFCB05, texto oscuro
+   ─ Respuestas del sistema: bubble izquierda, fondo #1E3A5F, texto blanco
+   ─ Streaming token a token con cursor parpadeante
+   ─ Indicador de agente activo: "🔍 Consultando Stats Agent..." / "⚔️ Damage Calc..."
+   ─ Fuentes citadas al pie de cada respuesta: [Fuente: PokéAPI, Bulbapedia]
+   ─ Botón "Generar Reporte PDF" inline si la respuesta lo amerita
+
+   POKÉMON DETAIL PANEL (derecha):
+   ─ Sprite animado del Pokémon (GIF de PokéAPI)
+   ─ Nombre + número nacional (#025)
+   ─ Badges de tipo coloreados (según paleta oficial de tipos)
+   ─ Radar chart de stats base (Recharts, 6 ejes)
+   ─ Tabs: Stats | Moveset | Lore | Competitivo
+
+   SEARCH BAR:
+   ─ Autocompletado con nombre de Pokémon (fuzzy search, fuse.js)
+   ─ Sugerencias en dropdown: icono + nombre + tipo
+   ─ Shortcut: / para foco rápido
+
+   HISTORIAL DE SESIÓN (panel lateral colapsable):
+   ─ Lista de preguntas hechas en la sesión
+   ─ Click en una pregunta → scroll a esa respuesta
+   ─ Botón "Exportar sesión (.md)"
+
+4.3 RESPONSIVE
+   ─ Mobile (<768px): Chat a pantalla completa, panel detalle como drawer
+   ─ Tablet (768–1023px): Chat 60% | detalle 40%
+   ─ Desktop (1024px+): Layout completo con sidebar de historial
+
+═══════════════════════════════════════════════════════════════════════════════
+PARTE 5: PANEL DE OBSERVABILIDAD
+═══════════════════════════════════════════════════════════════════════════════
+
+5.1 DASHBOARD DE MONITOREO (ruta /admin/observability)
+   ─ Métricas en tiempo real:
+     • Latencia promedio por agente (ms)
+     • Tokens consumidos por consulta (input + output)
+     • Agentes más invocados (barras)
+     • Score de confianza promedio por tipo de query
+     • Tasa de alucinaciones detectadas por el Verification Agent
+   ─ Trace viewer:
+     • Árbol de ejecución de agentes por query
+     • Duración de cada nodo
+     • Chunks RAG recuperados (texto + score)
+     • Prompt enviado a cada agente (colapsable)
+   ─ Benchmark RAG:
+     • Tabla con las 50 queries del conjunto de evaluación
+     • Columnas: query | faithfulness | relevancy | precision | recall | accuracy
+     • Exportar como CSV
+
+5.2 LOGGING ESTRUCTURADO
+   ─ Cada invocación de agente registra:
+     {
+       trace_id, session_id, agent_name, timestamp,
+       input_tokens, output_tokens, latency_ms,
+       model_used, retrieval_chunks: [{text, score, source}],
+       confidence_score, verified: bool
+     }
+   ─ Almacenamiento: PostgreSQL tabla "agent_traces"
+   ─ Integración opcional: LangSmith o Arize Phoenix vía SDK
+
+═══════════════════════════════════════════════════════════════════════════════
+ESTRUCTURA DE ARCHIVOS
+═══════════════════════════════════════════════════════════════════════════════
+
+pokedex-arcana/
+├── backend/
+│   ├── agents/
+│   │   ├── coordinator.py
+│   │   ├── stats_agent.py
+│   │   ├── damage_calc_agent.py
+│   │   ├── lore_agent.py
+│   │   ├── team_builder_agent.py
+│   │   ├── verification_agent.py
+│   │   ├── report_agent.py
+│   │   └── dataviz_agent.py
+│   ├── rag/
+│   │   ├── ingest/
+│   │   │   ├── pokeapi_loader.py
+│   │   │   ├── bulbapedia_loader.py
+│   │   │   ├── csv_loader.py
+│   │   │   └── pdf_loader.py
+│   │   ├── retriever.py
+│   │   ├── reranker.py
+│   │   └── vector_store.py
+│   ├── memory/
+│   │   ├── session_manager.py
+│   │   ├── entity_memory.py
+│   │   └── episodic_memory.py
+│   ├── tools/
+│   │   ├── pokeapi_tools.py
+│   │   ├── damage_formula.py
+│   │   ├── type_chart.py
+│   │   └── report_generator.py
+│   ├── evaluation/
+│   │   ├── ragas_eval.py
+│   │   ├── benchmark_queries.json
+│   │   └── metrics_reporter.py
+│   ├── api/
+│   │   ├── main.py               (FastAPI app)
+│   │   ├── routes/
+│   │   │   ├── chat.py
+│   │   │   ├── pokemon.py
+│   │   │   └── observability.py
+│   │   └── websocket_handler.py
+│   ├── db/
+│   │   ├── models.py
+│   │   ├── migrations/
+│   │   └── seed_data.py
+│   ├── config.py
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── chat/
+│   │   │   │   ├── ChatInterface.jsx
+│   │   │   │   ├── MessageBubble.jsx
+│   │   │   │   ├── AgentIndicator.jsx
+│   │   │   │   └── SourceCitation.jsx
+│   │   │   ├── pokemon/
+│   │   │   │   ├── PokemonPanel.jsx
+│   │   │   │   ├── StatsRadar.jsx
+│   │   │   │   ├── TypeBadge.jsx
+│   │   │   │   ├── EvolutionChain.jsx
+│   │   │   │   └── TypeEffectivenessGrid.jsx
+│   │   │   ├── search/
+│   │   │   │   ├── SearchBar.jsx
+│   │   │   │   └── SearchSuggestions.jsx
+│   │   │   ├── observability/
+│   │   │   │   ├── Dashboard.jsx
+│   │   │   │   ├── TraceViewer.jsx
+│   │   │   │   └── RAGMetricsTable.jsx
+│   │   │   └── ui/
+│   │   │       ├── Button.jsx
+│   │   │       ├── Card.jsx
+│   │   │       └── Drawer.jsx
+│   │   ├── pages/
+│   │   │   ├── Home.jsx
+│   │   │   ├── Chat.jsx
+│   │   │   └── Observability.jsx
+│   │   ├── hooks/
+│   │   │   ├── useChat.js
+│   │   │   ├── useStreaming.js
+│   │   │   └── usePokemonSearch.js
+│   │   ├── store/
+│   │   │   ├── sessionStore.js
+│   │   │   └── pokemonStore.js
+│   │   └── styles/
+│   │       ├── tokens.css
+│   │       └── globals.css
+│   └── package.json
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   └── embeddings/
+├── docker-compose.yml
+├── .env.example
+└── README.md
+
+═══════════════════════════════════════════════════════════════════════════════
+CASOS DE USO Y FLUJOS ESPERADOS
+═══════════════════════════════════════════════════════════════════════════════
+
+CASO 1 — Consulta de stats básica:
+  Input:  "¿Cuáles son los tipos y stats base de Jigglypuff?"
+  Flujo:  Coordinator → Stats Agent → PokéAPI tool → Verification Agent
+  Output: "Jigglypuff (#039) es Normal/Hada. Stats: HP 115 | ATK 45 |
+           DEF 20 | SpA 45 | SpD 25 | SPE 20 | BST 270.
+           [Fuente: PokéAPI Gen IX, entrada #039]"
+
+CASO 2 — Cálculo de daño complejo:
+  Input:  "Abomasnow Audaz usa Ventisca contra Jigglypuff con 0 EVs SpDef"
+  Flujo:  Coordinator → Stats Agent (fetch ambos) → Damage Calc Agent
+          → Verification Agent (revalidar cálculo)
+  Output: Rango de daño XX–XX PS (ZZ–ZZ%), tipo de efectividad, STAB,
+          modificador de naturaleza, KO rate. Fuentes citadas.
+
+CASO 3 — Team building:
+  Input:  "Necesito 5 compañeros para Dragapult en OU"
+  Flujo:  Coordinator → Stats Agent (Dragapult data) → Team Builder Agent
+          (análisis de debilidades + RAG Smogon) → Verification Agent
+  Output: Lista estructurada: Pokémon | Rol | Justificación | Set sugerido.
+          Cobertura de tipos resultante del equipo.
+
+CASO 4 — Consulta de lore + follow-up:
+  Input:  "Cuéntame sobre Pikachu"
+  Flujo:  Coordinator → Lore Agent (RAG Bulbapedia) + Stats Agent (paralelo)
+  Output: Descripción completa. Sistema recuerda "Pikachu" como entidad activa.
+  Follow-up: "¿Y su rival?"
+  Flujo:  Coordinator detecta entidad previa → Lore Agent recupera "Raichu del
+          Teniente Surge" sin necesidad de recontextualizar.
+
+CASO 5 — Reporte completo:
+  Input:  "Genera un análisis completo de Garchomp en PDF"
+  Flujo:  Coordinator → Stats Agent + Lore Agent + Team Builder Agent
+          (paralelo) → Report Agent → PDF generado
+  Output: PDF descargable con secciones: Datos Base | Lore | Uso Competitivo
+          | Sets Recomendados | Fuentes.
+
+═══════════════════════════════════════════════════════════════════════════════
+SISTEMA DE DISEÑO — DESIGN TOKENS
+═══════════════════════════════════════════════════════════════════════════════
+
+COLORES (tokens.css):
+─────────────────────────────────────────────────────────────────────────────
+  /* Pokédex Core */
+  --color-pokedex-red:      #CC0000;
+  --color-pokedex-red-dark: #990000;
+  --color-screen-blue:      #1E3A5F;
+  --color-pikachu-yellow:   #FFCB05;
+  --color-bg-dark:          #1A1A1A;
+  --color-bg-panel:         #2D2D2D;
+  --color-text-light:       #F0F0F0;
+
+  /* Tipos Pokémon */
+  --type-normal:   #A8A878;  --type-fire:    #F08030;
+  --type-water:    #6890F0;  --type-electric:#F8D030;
+  --type-grass:    #78C850;  --type-ice:     #98D8D8;
+  --type-fighting: #C03028;  --type-poison:  #A040A0;
+  --type-ground:   #E0C068;  --type-flying:  #A890F0;
+  --type-psychic:  #F85888;  --type-bug:     #A8B820;
+  --type-rock:     #B8A038;  --type-ghost:   #705898;
+  --type-dragon:   #7038F8;  --type-dark:    #705848;
+  --type-steel:    #B8B8D0;  --type-fairy:   #EE99AC;
+
+  /* Métricas RAG */
+  --metric-excellent: #00B878;
+  --metric-good:      #78C850;
+  --metric-warning:   #F8D030;
+  --metric-poor:      #F08030;
+  --metric-fail:      #CC0000;
+
+TIPOGRAFÍA:
+─────────────────────────────────────────────────────────────────────────────
+  --font-pixel:  'Press Start 2P', monospace;   /* títulos, badges */
+  --font-body:   'Nunito', 'Inter', sans-serif;  /* texto general */
+  --font-mono:   'JetBrains Mono', monospace;    /* código, stats, traces */
+
+  --text-xs:    11px;  --text-sm:  13px;  --text-base: 15px;
+  --text-lg:    17px;  --text-xl:  20px;  --text-2xl:  24px;
+  --text-3xl:   32px;  --text-4xl: 40px;
+
+═══════════════════════════════════════════════════════════════════════════════
+CRITERIOS DE ACEPTACIÓN
+═══════════════════════════════════════════════════════════════════════════════
+
+✅ Responde correctamente los 4 casos de uso del documento (stats, daño,
+   equipo, lore) con datos verificables de PokéAPI / Bulbapedia
+✅ Arquitectura multiagente con mínimo 5 agentes diferenciados y comunicantes
+✅ Agente Coordinador que clasifica intención y delega dinámicamente
+✅ Agente Verificador activo en respuestas con datos numéricos
+✅ Memoria conversacional funcional (follow-up sin recontextualizar)
+✅ Cálculos de daño verificablemente correctos vs fórmula Gen IX
+✅ Métricas RAGAS implementadas con benchmark de mínimo 20 queries anotadas
+✅ Panel de observabilidad con latencia, tokens y trazas por query
+✅ Streaming de respuestas token a token en la UI
+✅ Interfaz visual con estética Pokédex (radar chart, type badges, sprites)
+✅ Generación de reporte PDF/MD funcional para al menos 1 tipo de consulta
+✅ Al menos 1 visualización automática (radar de stats o comparativa de barras)
+✅ Sistema ejecutable con `docker-compose up` en entorno local
+✅ README con instrucciones de instalación, configuración de API keys y deploy
+
+═══════════════════════════════════════════════════════════════════════════════
+ENTREGABLES
+═══════════════════════════════════════════════════════════════════════════════
+
+1. Repositorio completo ejecutable con docker-compose.yml
+2. Todos los agentes implementados con docstrings y tipado
+3. Pipeline de ingesta documentado y ejecutable (script seed_data.py)
+4. Benchmark set: benchmark_queries.json (mínimo 20 queries + ground truth)
+5. Reporte de métricas RAGAS en JSON de una corrida de evaluación
+6. Panel de observabilidad funcional en /admin/observability
+7. README.md con:
+   - Arquitectura del sistema (diagrama ASCII o imagen)
+   - Instrucciones de instalación y variables de entorno
+   - Guía de uso de cada agente
+   - Resultados del benchmark RAG
+   - Decisiones de diseño y trade-offs
+8. Demo funcional (video de 3-5 min o URL pública en Render/Railway)
+
+INSTRUCCIÓN FINAL:
+Genera todo el código completo y ejecutable, sin fragmentos parciales. Los
+agentes deben ser realmente funcionales, no mocks. Los cálculos de daño deben
+implementar la fórmula Gen IX real. El RAG debe funcionar con datos reales de
+PokéAPI. Prioriza corrección numérica, observabilidad y experiencia de chat
+fluida. Usa nombres de variables en inglés para el código (estándar Python/JS)
+y español en los prompts de sistema de los agentes (contexto del hackathon).

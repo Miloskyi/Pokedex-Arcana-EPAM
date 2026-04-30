@@ -1,0 +1,204 @@
+[
+  {
+    "id": "stats_001",
+    "category": "stats",
+    "query": "What are Pikachu's base stats?",
+    "ground_truth": "Pikachu has HP: 35, Attack: 55, Defense: 40, Sp. Atk: 50, Sp. Def: 50, Speed: 90, BST: 320",
+    "contexts": [
+      "Pikachu is an Electric-type Pokémon with base stats: HP 35, Attack 55, Defense 40, Special Attack 50, Special Defense 50, Speed 90."
+    ]
+  },
+  {
+    "id": "stats_002",
+    "category": "stats",
+    "query": "What is Charizard's Base Stat Total?",
+    "ground_truth": "Charizard has a Base Stat Total (BST) of 534, with HP: 78, Attack: 84, Defense: 78, Sp. Atk: 109, Sp. Def: 85, Speed: 100.",
+    "contexts": [
+      "Charizard is a Fire/Flying-type Pokémon. Its base stats are: HP 78, Attack 84, Defense 78, Special Attack 109, Special Defense 85, Speed 100, giving a BST of 534."
+    ]
+  },
+  {
+    "id": "stats_003",
+    "category": "stats",
+    "query": "Which has a higher BST, Mewtwo or Dragonite?",
+    "ground_truth": "Mewtwo has a higher BST of 680 compared to Dragonite's BST of 600.",
+    "contexts": [
+      "Mewtwo is a Psychic-type Legendary Pokémon with a BST of 680.",
+      "Dragonite is a Dragon/Flying-type Pokémon with a BST of 600."
+    ]
+  },
+  {
+    "id": "stats_004",
+    "category": "stats",
+    "query": "What types is Garchomp and what are its weaknesses?",
+    "ground_truth": "Garchomp is a Dragon/Ground-type Pokémon. It is weak to Ice (4x), Dragon (2x), and Fairy (2x) types.",
+    "contexts": [
+      "Garchomp is a Dragon/Ground-type Pokémon introduced in Generation IV. Dragon/Ground typing gives it a 4x weakness to Ice, and 2x weaknesses to Dragon and Fairy."
+    ]
+  },
+  {
+    "id": "stats_005",
+    "category": "stats",
+    "query": "What are Gengar's abilities?",
+    "ground_truth": "Gengar's abilities are Cursed Body (standard) and its hidden ability is Cursed Body. Its pre-evolution Gastly and Haunter share the Levitate ability, but Gengar lost Levitate in Generation VI.",
+    "contexts": [
+      "Gengar is a Ghost/Poison-type Pokémon. Since Generation VI, Gengar's ability is Cursed Body, which may disable a move used on Gengar. It previously had Levitate as its ability."
+    ]
+  },
+  {
+    "id": "lore_001",
+    "category": "lore",
+    "query": "What is the origin story of Mewtwo?",
+    "ground_truth": "Mewtwo was created by scientists who genetically manipulated Mew's DNA. It was born from a pregnant Mew found in the jungles of Guyana, and its genes were spliced with human DNA to enhance its powers.",
+    "contexts": [
+      "Mewtwo is a Pokémon that was created by genetic manipulation. A scientist found a pregnant Mew in the jungles of Guyana and used its DNA to create Mewtwo, splicing it with human DNA to amplify its powers.",
+      "According to its Pokédex entries, Mewtwo was created by a scientist after years of horrific gene-splicing and DNA engineering experiments."
+    ]
+  },
+  {
+    "id": "lore_002",
+    "category": "lore",
+    "query": "What does Snorlax's Pokédex entry say about its eating habits?",
+    "ground_truth": "Snorlax is known for eating 900 pounds (400 kg) of food per day before going to sleep. It is not satisfied unless it eats that much.",
+    "contexts": [
+      "Snorlax's Pokédex entry states: It is not satisfied unless it eats over 880 pounds of food every day. When it is done eating, it goes promptly to sleep.",
+      "Snorlax eats approximately 400 kg of food daily and spends most of its time sleeping after meals."
+    ]
+  },
+  {
+    "id": "lore_003",
+    "category": "lore",
+    "query": "What is the legend behind Arceus in Pokémon lore?",
+    "ground_truth": "Arceus is known as the Original One in Pokémon mythology. It is said to have shaped the universe with its 1000 arms, emerging from an egg before the universe existed and creating Dialga, Palkia, and Giratina.",
+    "contexts": [
+      "Arceus is described as the Original One in Sinnoh mythology. According to legend, Arceus emerged from an egg in a place where there was nothing, then shaped the world with its 1000 arms.",
+      "Arceus is said to have created Dialga, Palkia, and Giratina to control time, space, and antimatter respectively."
+    ]
+  },
+  {
+    "id": "lore_004",
+    "category": "lore",
+    "query": "How does Eevee's evolution work according to Pokédex lore?",
+    "ground_truth": "Eevee has an unstable genetic makeup that allows it to evolve into many different forms depending on environmental conditions, radiation exposure, or emotional bonds with its trainer.",
+    "contexts": [
+      "Eevee's genetic code is irregular, allowing it to adapt to many different environments. Its unstable DNA reacts to various stimuli, enabling evolution into Vaporeon, Jolteon, Flareon, Espeon, Umbreon, Leafeon, Glaceon, or Sylveon.",
+      "According to Pokédex entries, Eevee has an unstable genetic makeup that suddenly mutates due to the environment in which it lives."
+    ]
+  },
+  {
+    "id": "lore_005",
+    "category": "lore",
+    "query": "What is the relationship between Kyogre and Groudon in Pokémon mythology?",
+    "ground_truth": "Kyogre and Groudon are ancient Pokémon that clashed in a legendary battle over the expansion of the sea and land. Kyogre sought to expand the oceans while Groudon sought to expand the landmass, and their battle was so fierce it threatened to destroy the world.",
+    "contexts": [
+      "In Hoenn mythology, Kyogre and Groudon are ancient super-ancient Pokémon that battled each other. Kyogre has the power to expand the seas, while Groudon can expand the landmass.",
+      "The two Pokémon clashed in a legendary battle that threatened to destroy the world until Rayquaza descended from the sky and stopped their conflict."
+    ]
+  },
+  {
+    "id": "damage_001",
+    "category": "damage",
+    "query": "How much damage does Flamethrower do to a Grass-type Pokémon?",
+    "ground_truth": "Flamethrower is a Fire-type move with 90 base power. Against a Grass-type Pokémon, it deals 2x super effective damage due to Fire being strong against Grass.",
+    "contexts": [
+      "Flamethrower is a Fire-type special move with 90 base power and 100% accuracy.",
+      "Fire-type moves are super effective (2x damage) against Grass, Ice, Bug, and Steel types."
+    ]
+  },
+  {
+    "id": "damage_002",
+    "category": "damage",
+    "query": "What is the damage calculation for Earthquake against a Water-type Pokémon?",
+    "ground_truth": "Earthquake is a Ground-type move with 100 base power. Against a Water-type Pokémon, it deals neutral (1x) damage since Water is not weak or resistant to Ground.",
+    "contexts": [
+      "Earthquake is a Ground-type physical move with 100 base power and 100% accuracy that hits all adjacent Pokémon in double battles.",
+      "Water-type Pokémon have no special interaction with Ground-type moves; they take neutral damage."
+    ]
+  },
+  {
+    "id": "damage_003",
+    "category": "damage",
+    "query": "Does STAB affect the damage of Thunderbolt used by Pikachu?",
+    "ground_truth": "Yes, STAB (Same Type Attack Bonus) applies when Pikachu uses Thunderbolt. Since Pikachu is Electric-type and Thunderbolt is also Electric-type, the move receives a 1.5x damage multiplier.",
+    "contexts": [
+      "STAB (Same Type Attack Bonus) is a 1.5x damage multiplier applied when a Pokémon uses a move that matches one of its types.",
+      "Pikachu is an Electric-type Pokémon. Thunderbolt is an Electric-type move with 90 base power."
+    ]
+  },
+  {
+    "id": "damage_004",
+    "category": "damage",
+    "query": "How does weather affect Fire-type move damage in sun?",
+    "ground_truth": "In harsh sunlight (sunny weather), Fire-type moves receive a 1.5x damage boost. This is part of the weather modifier in the damage formula.",
+    "contexts": [
+      "Harsh sunlight boosts the power of Fire-type moves by 1.5x and reduces the power of Water-type moves by 0.5x.",
+      "Weather modifiers are applied as part of the Generation IX damage formula."
+    ]
+  },
+  {
+    "id": "damage_005",
+    "category": "damage",
+    "query": "What happens to damage when a move hits a Pokémon with a type immunity?",
+    "ground_truth": "When a move hits a Pokémon with a type immunity (0x effectiveness), the move deals 0 damage and the message 'It doesn't affect [Pokémon]' is displayed.",
+    "contexts": [
+      "Type immunities result in 0x damage multiplier. For example, Normal-type moves cannot hit Ghost-type Pokémon, and Electric-type moves cannot hit Ground-type Pokémon.",
+      "When a move has 0x type effectiveness, it deals no damage and the game displays an immunity message."
+    ]
+  },
+  {
+    "id": "team_001",
+    "category": "team",
+    "query": "What are good partners for Garchomp in OU competitive play?",
+    "ground_truth": "Good partners for Garchomp in OU include Clefable for Fairy coverage and Wish support, Rotom-Wash for Water coverage, and Ferrothorn for entry hazards and Fairy/Dragon resistance.",
+    "contexts": [
+      "Garchomp is a top-tier OU Pokémon. Common partners include Clefable, which covers Garchomp's Dragon and Ice weaknesses with its Fairy typing.",
+      "Rotom-Wash pairs well with Garchomp, covering its Water weakness while Garchomp covers Rotom's Ground weakness.",
+      "Ferrothorn provides entry hazard support and resists Fairy and Dragon moves that threaten Garchomp."
+    ]
+  },
+  {
+    "id": "team_002",
+    "category": "team",
+    "query": "What nature and EV spread should I use for a Scizor in competitive play?",
+    "ground_truth": "A standard Scizor set uses Adamant nature with 248 HP / 252 Attack / 8 Speed EVs for maximum bulk and power, or a Choice Band set with 252 Attack / 4 Defense / 252 Speed EVs.",
+    "contexts": [
+      "Scizor is commonly run with an Adamant nature to maximize its Attack stat.",
+      "A bulky Scizor set typically uses 248 HP / 252 Attack / 8 Speed EVs to maximize survivability while maintaining offensive pressure.",
+      "Choice Band Scizor often runs 252 Attack / 4 Defense / 252 Speed EVs for maximum speed and power."
+    ]
+  },
+  {
+    "id": "team_003",
+    "category": "team",
+    "query": "What type coverage gaps does a team of Charizard, Blastoise, and Venusaur have?",
+    "ground_truth": "A team of Charizard, Blastoise, and Venusaur has weaknesses to Electric (Charizard, Blastoise), Rock (Charizard), Psychic (Venusaur), and Flying (Venusaur). The team lacks a dedicated special wall and a Stealth Rock setter.",
+    "contexts": [
+      "Charizard is weak to Electric, Rock, and Water types.",
+      "Blastoise is weak to Electric and Grass types.",
+      "Venusaur is weak to Fire, Ice, Flying, and Psychic types.",
+      "A balanced team should cover common offensive threats and have entry hazard support."
+    ]
+  },
+  {
+    "id": "team_004",
+    "category": "team",
+    "query": "What is a good moveset for Tyranitar in OU?",
+    "ground_truth": "A standard Tyranitar set in OU includes Stone Edge, Crunch, Earthquake, and either Stealth Rock or Ice Punch, with a Jolly or Adamant nature and Choice Scarf or Choice Band.",
+    "contexts": [
+      "Tyranitar is a Rock/Dark-type Pokémon commonly used in OU.",
+      "Standard Tyranitar movesets include Stone Edge for STAB, Crunch for secondary STAB, Earthquake for coverage, and Stealth Rock for entry hazard support.",
+      "Tyranitar is often run with Choice Scarf to patch its mediocre Speed stat, or Choice Band for maximum power."
+    ]
+  },
+  {
+    "id": "team_005",
+    "category": "team",
+    "query": "How do I build a balanced team around Toxapex in competitive play?",
+    "ground_truth": "Toxapex is a defensive pivot and wall. A balanced team around Toxapex includes offensive threats like Kartana or Tapu Koko, a Stealth Rock setter like Landorus-T, and a special attacker to cover Toxapex's weaknesses to Ground and Psychic.",
+    "contexts": [
+      "Toxapex is a Poison/Water-type Pokémon known for its exceptional bulk and access to Recover and Haze.",
+      "Teams built around Toxapex typically include fast offensive threats to take advantage of the defensive pressure Toxapex creates.",
+      "Toxapex is weak to Ground, Electric, and Psychic types, so partners that cover these weaknesses are essential."
+    ]
+  }
+]
