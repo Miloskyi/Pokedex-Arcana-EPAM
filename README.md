@@ -94,7 +94,7 @@ Esto inicia: PostgreSQL, Redis, ChromaDB, el backend FastAPI (con Celery worker)
 |---|---|
 | 🎮 **Pokédex UI** | http://localhost:3000 |
 | ⚙️ **Backend API** | http://localhost:8080 |
-| 📊 **Observabilidad** | http://localhost:3000/admin/observability |
+
 
 ---
 
