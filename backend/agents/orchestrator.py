@@ -315,14 +315,14 @@ async def _run_damage_node(query: str) -> dict[str, Any]:
 
 Query: "{query}"
 
-Spanish nature names mapping: Audaz=Bold, Modesta=Modest, Adamante=Adamant, Jovial=Jolly, Tímida=Timid, Firme=Impish, Osada=Hasty, Agitada=Hasty, Mansa=Calm, Serena=Calm, Cauta=Careful, Grosera=Rash, Ingenua=Naive, Pícara=Naughty, Activa=Jolly, Alegre=Jolly
+Spanish nature names mapping: Audaz=bold, Modesta=modest, Adamante=adamant, Jovial=jolly, Tímida=timid, Firme=impish, Osada=bold
 
-Spanish move names: Ventisca=Blizzard, Rayo=Thunderbolt, Lanzallamas=Flamethrower, Surf=Surf, Terremoto=Earthquake, Psíquico=Psychic, Bola Sombra=Shadow Ball
+IMPORTANT: The "move" MUST be returned in English only. Translate Spanish moves to English (e.g. Ventisca=blizzard, Rayo=thunderbolt, Lanzallamas=flamethrower, Terremoto=earthquake).
 
 Return JSON:
 {{
   "attacker": "pokemon name lowercase",
-  "move": "move name lowercase with hyphens",
+  "move": "move name IN ENGLISH ONLY lowercase with hyphens",
   "defender": "pokemon name lowercase",
   "attacker_nature": "english nature name lowercase or null",
   "weather": "sun/rain/sand/snow/none",
@@ -343,6 +343,18 @@ Examples:
     held_item = "none"
     defender_evs: dict = {}
 
+    spanish_moves_map = {
+        "rayo": "thunderbolt",
+        "ventisca": "blizzard",
+        "lanzallamas": "flamethrower",
+        "surf": "surf",
+        "terremoto": "earthquake",
+        "psíquico": "psychic",
+        "psiquico": "psychic",
+        "bola-sombra": "shadow-ball",
+        "bola sombra": "shadow-ball"
+    }
+
     try:
         raw = await chat_complete(
             messages=[{"role": "user", "content": parse_prompt}],
@@ -352,7 +364,9 @@ Examples:
         )
         parsed = json.loads(raw)
         attacker = parsed.get("attacker") or attacker
-        move = (parsed.get("move") or move).replace(" ", "-")
+        _parsed_move = (parsed.get("move") or move).lower().strip()
+        _parsed_move = spanish_moves_map.get(_parsed_move, _parsed_move)
+        move = _parsed_move.replace(" ", "-")
         defender = parsed.get("defender") or defender
         nature = parsed.get("attacker_nature") or nature
         weather = parsed.get("weather") or weather
@@ -411,7 +425,13 @@ async def _run_team_node(query: str) -> dict[str, Any]:
     from backend.llm_client import chat_complete
     import json
 
-    lead = "dragapult"
+    lead_type = _extract_type_from_query(query)
+    if lead_type and lead_type in _TOP_BY_TYPE:
+        lead = _TOP_BY_TYPE[lead_type][0]
+    else:
+        extracted = _extract_pokemon_name(query)
+        lead = extracted if extracted != "pikachu" else "dragapult"
+        
     tier = "OU"
 
     # Use LLM to extract lead Pokémon and tier from complex queries
@@ -429,6 +449,7 @@ Examples:
 - "I need 5 teammates for Dragapult in OU" → {{"lead_pokemon":"dragapult","tier":"OU"}}
 - "Necesito compañeros para Garchomp en competitivo" → {{"lead_pokemon":"garchomp","tier":"OU"}}
 - "Build a team around Pikachu" → {{"lead_pokemon":"pikachu","tier":"OU"}}
+- "Best team fire" → {{"lead_pokemon":"charizard","tier":"OU"}}
 """
 
     try:
@@ -510,7 +531,7 @@ _AGENT_NODES: dict[str, Any] = {
     "comparison": _run_comparison_node,
 }
 
-_AGENT_TIMEOUT = 90.0  # seconds — llama3.1:8b needs more time
+_AGENT_TIMEOUT = 180.0  # seconds — llama3.1:8b needs more time
 
 
 async def _run_agent_with_timeout(

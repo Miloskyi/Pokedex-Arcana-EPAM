@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import TypeBadge from '../ui/TypeBadge'
+import { getTypeColor } from '../../design-system/type-colors'
 
 interface PokemonCardProps {
   id: number
@@ -16,61 +17,83 @@ function getSpriteUrl(id: number): string {
 }
 
 const PokemonCard: React.FC<PokemonCardProps> = ({
-  id,
-  name,
-  types,
-  nationalDex,
-  onClick,
-  selected = false,
-  className = '',
+  id, name, types, onClick, selected = false, className = '',
 }) => {
   const [imgError, setImgError] = useState(false)
-  const spriteUrl = getSpriteUrl(id)
+  const primaryType = types[0] ?? 'normal'
+  const typeColor = getTypeColor(primaryType)
 
   return (
     <button
-      className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg transition-all text-left
-        ${selected
-          ? 'bg-screen-blue border border-pikachu-yellow'
-          : 'bg-bg-panel hover:bg-gray-700 border border-transparent'
-        } ${className}`}
+      className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-all text-left group ${className}`}
+      style={{
+        background: selected
+          ? `linear-gradient(135deg, rgba(${hexToRgb(typeColor)}, 0.25), rgba(30,58,95,0.6))`
+          : 'rgba(255,255,255,0.03)',
+        border: selected
+          ? `1px solid rgba(${hexToRgb(typeColor)}, 0.5)`
+          : '1px solid rgba(255,255,255,0.05)',
+        boxShadow: selected ? `0 0 15px rgba(${hexToRgb(typeColor)}, 0.2)` : 'none',
+      }}
+      onMouseEnter={e => {
+        if (!selected) {
+          e.currentTarget.style.background = `rgba(${hexToRgb(typeColor)}, 0.1)`
+          e.currentTarget.style.borderColor = `rgba(${hexToRgb(typeColor)}, 0.3)`
+        }
+      }}
+      onMouseLeave={e => {
+        if (!selected) {
+          e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.05)'
+        }
+      }}
       onClick={onClick}
-      aria-label={`${name} #${nationalDex}`}
+      aria-label={`${name} #${id}`}
       aria-pressed={selected}
     >
       {/* Sprite */}
-      <div className="w-12 h-12 shrink-0 flex items-center justify-center">
+      <div
+        className="w-11 h-11 shrink-0 flex items-center justify-center rounded-lg"
+        style={{ background: `rgba(${hexToRgb(typeColor)}, 0.1)` }}
+      >
         {!imgError ? (
           <img
-            src={spriteUrl}
+            src={getSpriteUrl(id)}
             alt={name}
-            className="w-12 h-12 object-contain pixelated"
+            className="w-10 h-10 object-contain pixelated group-hover:scale-110 transition-transform"
             onError={() => setImgError(true)}
             loading="lazy"
           />
         ) : (
-          <div className="w-12 h-12 rounded-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs">
-            ?
-          </div>
+          <span className="text-xl">❓</span>
         )}
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-gray-400 text-xs font-mono">#{String(nationalDex).padStart(4, '0')}</span>
+        <div className="flex items-center gap-1.5 mb-0.5">
+          <span className="text-[10px] font-mono" style={{ color: 'rgba(148,163,184,0.5)' }}>
+            #{String(id).padStart(4, '0')}
+          </span>
         </div>
-        <p className="text-text-light font-body font-semibold capitalize truncate text-sm">
+        <p className="text-white font-body font-semibold capitalize truncate text-sm leading-tight">
           {name}
         </p>
-        <div className="flex gap-1 mt-0.5 flex-wrap">
-          {types.map((t) => (
+        <div className="flex gap-1 mt-1 flex-wrap">
+          {types.map(t => (
             <TypeBadge key={t} type={t} size="sm" />
           ))}
         </div>
       </div>
     </button>
   )
+}
+
+function hexToRgb(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return `${r},${g},${b}`
 }
 
 export default PokemonCard

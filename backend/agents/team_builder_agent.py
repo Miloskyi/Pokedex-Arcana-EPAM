@@ -168,7 +168,7 @@ def _compute_weaknesses(defending_types: list[str]) -> list[str]:
 
 _TEAM_SYSTEM_PROMPT = """\
 You are a competitive Pokémon team-building expert with deep knowledge of Smogon formats.
-Given a lead Pokémon and a competitive tier, recommend up to 5 partner Pokémon.
+Given a lead Pokémon and a competitive tier, recommend up to 3 partner Pokémon.
 
 For each partner provide:
 - pokemon_name: lowercase hyphenated name (e.g. "iron-valiant")
@@ -232,7 +232,7 @@ class TeamBuilderAgent:
         user_prompt = (
             f"Lead Pokémon: {lead_pokemon}\n"
             f"Competitive tier: {tier_upper}\n"
-            f"Recommend up to 5 partner Pokémon. "
+            f"Recommend up to 3 partner Pokémon. "
             f"For each partner, also include a 'primary_type' field with the Pokémon's "
             f"primary (first) type so overlap detection can work correctly."
         )
